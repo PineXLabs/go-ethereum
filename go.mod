@@ -4,7 +4,7 @@ go 1.22.0
 
 toolchain go1.22.1
 
-replace github.com/crate-crypto/go-kzg-4844 => ../das/go-kzg-4844
+replace github.com/crate-crypto/go-kzg-4844 => ../das/go-kzg-4844-prysm
 
 replace github.com/PineXLabs/das => ../das
 
