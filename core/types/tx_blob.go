@@ -57,6 +57,7 @@ type BlobTxSidecar struct {
 	Blobs       []kzg4844.Blob       // Blobs needed by the blob pool
 	Commitments []kzg4844.Commitment // Commitments needed by the blob pool
 	Proofs      []kzg4844.Proof      // Proofs needed by the blob pool
+	ExtraProofs []kzg4844.Proof
 }
 
 // BlobHashes computes the blob hashes of the given blobs.
@@ -82,6 +83,9 @@ func (sc *BlobTxSidecar) encodedSize() uint64 {
 	for i := range sc.Proofs {
 		proofs += rlp.BytesSize(sc.Proofs[i][:])
 	}
+	for i := range sc.ExtraProofs {
+		proofs += rlp.BytesSize(sc.Proofs[i][:])
+	}
 	return rlp.ListSize(blobs) + rlp.ListSize(commitments) + rlp.ListSize(proofs)
 }
 
@@ -91,6 +95,7 @@ type blobTxWithBlobs struct {
 	Blobs       []kzg4844.Blob
 	Commitments []kzg4844.Commitment
 	Proofs      []kzg4844.Proof
+	ExtraProofs []kzg4844.Proof
 }
 
 // copy creates a deep copy of the transaction data and initializes all fields.
@@ -200,6 +205,7 @@ func (tx *BlobTx) encode(b *bytes.Buffer) error {
 		Blobs:       tx.Sidecar.Blobs,
 		Commitments: tx.Sidecar.Commitments,
 		Proofs:      tx.Sidecar.Proofs,
+		ExtraProofs: tx.Sidecar.ExtraProofs,
 	}
 	return rlp.Encode(b, inner)
 }
@@ -233,6 +239,7 @@ func (tx *BlobTx) decode(input []byte) error {
 		Blobs:       inner.Blobs,
 		Commitments: inner.Commitments,
 		Proofs:      inner.Proofs,
+		ExtraProofs: inner.ExtraProofs,
 	}
 	return nil
 }
