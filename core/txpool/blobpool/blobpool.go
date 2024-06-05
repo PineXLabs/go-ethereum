@@ -1283,6 +1283,7 @@ func (p *BlobPool) add(tx *types.Transaction) (err error) {
 	}
 	// pre-calculate tx proofs in el
 	// we cacluate the proofs on saving the tx
+	// TODO-Dill: if ExtraProofs is already set, check the proofs
 	handle := das.New()
 	sidecar := tx.BlobTxSidecar()
 	if len(sidecar.Blobs) != 0 {
