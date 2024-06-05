@@ -1287,7 +1287,7 @@ func (p *BlobPool) add(tx *types.Transaction) (err error) {
 	handle := das.New()
 	sidecar := tx.BlobTxSidecar()
 	if len(sidecar.Blobs) != 0 {
-		log.Debug("blob pool precalculate proofs", "blob count", len(sidecar.Blobs))
+
 		for _, blob := range sidecar.Blobs {
 			extraProofs := []kzg4844.Proof{}
 			proofs, err := handle.BlobToSegmentsProofOnly(blob[:])
@@ -1300,6 +1300,7 @@ func (p *BlobPool) add(tx *types.Transaction) (err error) {
 			}
 			sidecar.ExtraProofs = extraProofs
 		}
+		log.Debug("blob pool precalculated proofs", "blob count", len(sidecar.Blobs), "extra proofs count", len(sidecar.ExtraProofs))
 	}
 	// Transaction permitted into the pool from a nonce and cost perspective,
 	// insert it into the database and update the indices
