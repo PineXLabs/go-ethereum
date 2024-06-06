@@ -1283,7 +1283,9 @@ func (p *BlobPool) add(tx *types.Transaction) (err error) {
 	}
 	// pre-calculate tx proofs in el
 	// we cacluate the proofs on saving the tx
-	// TODO-Dill: if ExtraProofs is already set, check the proofs
+	// TODO-Dill: if ExtraProofs is already set, check the proofs in an aggregated way
+	// it takes 0.2s to calculate all proofs on a 16 core machine
+	// but takes 0.35s to verify them all one by one
 	handle := das.New()
 	sidecar := tx.BlobTxSidecar()
 	if len(sidecar.Blobs) != 0 {
