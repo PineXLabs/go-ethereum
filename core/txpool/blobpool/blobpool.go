@@ -1201,7 +1201,7 @@ func (p *BlobPool) Get(hash common.Hash) *types.Transaction {
 		log.Error("Blobs corrupted for traced transaction", "hash", hash, "id", id, "err", err)
 		return nil
 	}
-	log.Debug("blob pool get blobTx", "blob count", len(item.BlobTxSidecar().Blobs))
+	//log.Debug("blob pool get blobTx", "blob count", len(item.BlobTxSidecar().Blobs))
 	return item
 }
 
@@ -1300,9 +1300,9 @@ func (p *BlobPool) add(tx *types.Transaction) (err error) {
 			for j := range proofs {
 				extraProofs = append(extraProofs, kzg4844.Proof(das.MarshalProof(&proofs[j])))
 			}
-			sidecar.ExtraProofs = extraProofs
+			sidecar.ExtraProofs = append(sidecar.ExtraProofs, extraProofs...)
 		}
-		log.Debug("blob pool precalculated proofs", "blob count", len(sidecar.Blobs), "extra proofs count", len(sidecar.ExtraProofs))
+		//log.Debug("blob pool precalculated proofs", "blob count", len(sidecar.Blobs), "extra proofs count", len(sidecar.ExtraProofs))
 	}
 	// Transaction permitted into the pool from a nonce and cost perspective,
 	// insert it into the database and update the indices

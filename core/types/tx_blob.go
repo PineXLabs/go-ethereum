@@ -84,7 +84,7 @@ func (sc *BlobTxSidecar) encodedSize() uint64 {
 		proofs += rlp.BytesSize(sc.Proofs[i][:])
 	}
 	for i := range sc.ExtraProofs {
-		proofs += rlp.BytesSize(sc.Proofs[i][:])
+		proofs += rlp.BytesSize(sc.ExtraProofs[i][:])
 	}
 	return rlp.ListSize(blobs) + rlp.ListSize(commitments) + rlp.ListSize(proofs)
 }
