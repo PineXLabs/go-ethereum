@@ -294,6 +294,10 @@ func BlockToExecutableData(block *types.Block, fees *big.Int, sidecars []*types.
 			bundle.Commitments = append(bundle.Commitments, hexutil.Bytes(sidecar.Commitments[j][:]))
 			bundle.Proofs = append(bundle.Proofs, hexutil.Bytes(sidecar.Proofs[j][:]))
 		}
+		// also append extra proof after
+		for i := range sidecar.ExtraProofs {
+			bundle.Proofs = append(bundle.Proofs, hexutil.Bytes(sidecar.ExtraProofs[i][:]))
+		}
 	}
 	return &ExecutionPayloadEnvelope{ExecutionPayload: data, BlockValue: fees, BlobsBundle: &bundle, Override: false}
 }

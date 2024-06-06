@@ -29,6 +29,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/PineXLabs/das"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/misc/eip1559"
 	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
@@ -36,6 +37,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto/kzg4844"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/metrics"
@@ -1199,6 +1201,7 @@ func (p *BlobPool) Get(hash common.Hash) *types.Transaction {
 		log.Error("Blobs corrupted for traced transaction", "hash", hash, "id", id, "err", err)
 		return nil
 	}
+	log.Debug("blob pool get blobTx", "blob count", len(item.BlobTxSidecar().Blobs))
 	return item
 }
 
@@ -1278,6 +1281,29 @@ func (p *BlobPool) add(tx *types.Transaction) (err error) {
 			}
 		}()
 	}
+	// pre-calculate tx proofs in el
+	// we cacluate the proofs on saving the tx
+	// TODO-Dill: if ExtraProofs is already set, check the proofs in an aggregated way
+	// it takes 0.2s to calculate all proofs on a 16 core machine
+	// but takes 0.35s to verify them all one by one
+	handle := das.New()
+	sidecar := tx.BlobTxSidecar()
+	if len(sidecar.Blobs) != 0 {
+
+		for _, blob := range sidecar.Blobs {
+			extraProofs := []kzg4844.Proof{}
+			proofs, err := handle.BlobToSegmentsProofOnly(blob[:])
+			if err != nil {
+				log.Error("Failed to extend blob proofs", "hash", tx.Hash(), "err", err)
+				return err
+			}
+			for j := range proofs {
+				extraProofs = append(extraProofs, kzg4844.Proof(das.MarshalProof(&proofs[j])))
+			}
+			sidecar.ExtraProofs = extraProofs
+		}
+		log.Debug("blob pool precalculated proofs", "blob count", len(sidecar.Blobs), "extra proofs count", len(sidecar.ExtraProofs))
+	}
 	// Transaction permitted into the pool from a nonce and cost perspective,
 	// insert it into the database and update the indices
 	blob, err := rlp.EncodeToBytes(tx)
@@ -1289,6 +1315,7 @@ func (p *BlobPool) add(tx *types.Transaction) (err error) {
 	if err != nil {
 		return err
 	}
+
 	meta := newBlobTxMeta(id, p.store.Size(id), tx)
 
 	var (
