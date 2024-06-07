@@ -1289,18 +1289,21 @@ func (p *BlobPool) add(tx *types.Transaction) (err error) {
 	handle := das.New()
 	sidecar := tx.BlobTxSidecar()
 	if len(sidecar.Blobs) != 0 {
-
-		for _, blob := range sidecar.Blobs {
-			extraProofs := []kzg4844.Proof{}
-			proofs, err := handle.BlobToSegmentsProofOnly(blob[:])
-			if err != nil {
-				log.Error("Failed to extend blob proofs", "hash", tx.Hash(), "err", err)
-				return err
+		if len(sidecar.ExtraProofs) == (128)*len(sidecar.Blobs) {
+			log.Debug("blob proof already calculated")
+		} else {
+			log.Debug("start calculate proofs","blob count", len(sidecar.Blobs), "extra proof count", len(sidecar.ExtraProofs))
+			for _, blob := range sidecar.Blobs {
+				proofs, err := handle.BlobToSegmentsProofOnly(blob[:])
+				if err != nil {
+					log.Error("Failed to extend blob proofs", "hash", tx.Hash(), "err", err)
+					return err
+				}
+				for j := range proofs {
+					sidecar.ExtraProofs = append(sidecar.ExtraProofs, kzg4844.Proof(das.MarshalProof(&proofs[j])))
+				}
 			}
-			for j := range proofs {
-				extraProofs = append(extraProofs, kzg4844.Proof(das.MarshalProof(&proofs[j])))
-			}
-			sidecar.ExtraProofs = append(sidecar.ExtraProofs, extraProofs...)
+			log.Debug("calculate blob proof done")
 		}
 		//log.Debug("blob pool precalculated proofs", "blob count", len(sidecar.Blobs), "extra proofs count", len(sidecar.ExtraProofs))
 	}
