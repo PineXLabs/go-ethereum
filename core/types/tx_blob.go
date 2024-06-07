@@ -57,7 +57,7 @@ type BlobTxSidecar struct {
 	Blobs       []kzg4844.Blob       // Blobs needed by the blob pool
 	Commitments []kzg4844.Commitment // Commitments needed by the blob pool
 	Proofs      []kzg4844.Proof      // Proofs needed by the blob pool
-	ExtraProofs []kzg4844.Proof
+	ExtraProofs []kzg4844.Proof      // ExtraProofs needed by the blob pool
 }
 
 // BlobHashes computes the blob hashes of the given blobs.
@@ -149,6 +149,7 @@ func (tx *BlobTx) copy() TxData {
 			Blobs:       append([]kzg4844.Blob(nil), tx.Sidecar.Blobs...),
 			Commitments: append([]kzg4844.Commitment(nil), tx.Sidecar.Commitments...),
 			Proofs:      append([]kzg4844.Proof(nil), tx.Sidecar.Proofs...),
+			ExtraProofs: append([]kzg4844.Proof(nil), tx.Sidecar.ExtraProofs...),
 		}
 	}
 	return cpy

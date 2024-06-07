@@ -25,7 +25,7 @@ import (
 const (
 	GasLimitBoundDivisor uint64 = 1024               // The bound divisor of the gas limit, used in update calculations.
 	MinGasLimit          uint64 = 5000               // Minimum the gas limit may ever be.
-	MaxGasLimit          uint64 = 0x7fffffffffffffff // Maximum the gas limit (2^63-1).
+	MaxGasLimit          uint64 = 0xffffffffffffffff // Maximum the gas limit (2^63-1).
 	GenesisGasLimit      uint64 = 4712388            // Gas limit of the Genesis block.
 
 	MaximumExtraDataSize  uint64 = 32    // Maximum size extra data may be after Genesis.
@@ -166,13 +166,13 @@ const (
 
 	BlobTxBytesPerFieldElement         = 32      // Size in bytes of a field element
 	BlobTxFieldElementsPerBlob         = 4096    // Number of field elements stored in a single data blob
-	BlobTxBlobGasPerBlob               = 1 << 7  // Gas consumption of a single data blob (== blob byte size)
+	BlobTxBlobGasPerBlob               = 1 << 4  // Gas consumption of a single data blob (== blob byte size)
 	BlobTxMinBlobGasprice              = 1       // Minimum gas price for data blobs
 	BlobTxBlobGaspriceUpdateFraction   = 3338477 // Controls the maximum rate of change for blob gas price
 	BlobTxPointEvaluationPrecompileGas = 50000   // Gas price for the point evaluation precompile.
 
-	BlobTxTargetBlobGasPerBlock = 64 * BlobTxBlobGasPerBlob  // Target consumable blob gas for data blobs per block (for 1559-like pricing)
-	MaxBlobGasPerBlock          = 128 * BlobTxBlobGasPerBlob // Maximum consumable blob gas for data blobs per block
+	BlobTxTargetBlobGasPerBlock = 512 * BlobTxBlobGasPerBlob // Target consumable blob gas for data blobs per block (for 1559-like pricing)
+	MaxBlobGasPerBlock          = 512 * BlobTxBlobGasPerBlob // Maximum consumable blob gas for data blobs per block
 )
 
 // Gas discount table for BLS12-381 G1 and G2 multi exponentiation operations
