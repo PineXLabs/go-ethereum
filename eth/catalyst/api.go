@@ -461,11 +461,24 @@ func (api *ConsensusAPI) GetPayloadV2(payloadID engine.PayloadID) (*engine.Execu
 }
 
 // GetPayloadV3 returns a cached payload by id.
-func (api *ConsensusAPI) GetPayloadV3(payloadID engine.PayloadID) (*engine.ExecutionPayloadEnvelope, error) {
+// func (api *ConsensusAPI) GetPayloadV3Old(payloadID engine.PayloadID) (*engine.ExecutionPayloadEnvelope, error) {
+// 	if !payloadID.Is(engine.PayloadV3) {
+// 		return nil, engine.UnsupportedFork
+// 	}
+// 	return api.getPayload(payloadID, false)
+// }
+
+// GetPayloadV3 returns a cached payload by id.
+func (api *ConsensusAPI) GetPayloadV3(payloadID engine.PayloadID) (*engine.ExecutionPayloadEnvelopeV2, error) {
 	if !payloadID.Is(engine.PayloadV3) {
 		return nil, engine.UnsupportedFork
 	}
-	return api.getPayload(payloadID, false)
+	bd, err := api.getPayload(payloadID, false)
+	if err != nil {
+		return nil, err
+	}
+	res := engine.ExecutionPayloadEnvelopeToV2(bd)
+	return res, nil
 }
 
 func (api *ConsensusAPI) getPayload(payloadID engine.PayloadID, full bool) (*engine.ExecutionPayloadEnvelope, error) {

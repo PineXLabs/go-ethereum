@@ -18,10 +18,12 @@ package catalyst
 
 import (
 	"sync"
+	"time"
 
 	"github.com/ethereum/go-ethereum/beacon/engine"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/miner"
 )
 
@@ -76,7 +78,10 @@ func (q *payloadQueue) put(id engine.PayloadID, payload *miner.Payload) {
 func (q *payloadQueue) get(id engine.PayloadID, full bool) *engine.ExecutionPayloadEnvelope {
 	q.lock.RLock()
 	defer q.lock.RUnlock()
-
+	now := time.Now()
+	defer func() {
+		log.Debug("get payload", "time used", time.Since(now).Milliseconds())
+	}()
 	for _, item := range q.payloads {
 		if item == nil {
 			return nil // no more items
